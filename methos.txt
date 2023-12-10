@@ -1,0 +1,4 @@
+for API use open weather 
+my APi key e2f5fcfbdd43072c3afeef644af6bff7
+https://api.openweathermap.org/data/2.5/weather?q={city name}&appid={API key}
+https://api.openweathermap.org/data/2.5/weather?q=Sahiwal&appid=e2f5fcfbdd43072c3afeef644af6bff7

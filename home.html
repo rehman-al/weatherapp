@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Weather App</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        .box {
+            position: relative;
+            width: 250px;
+            height: 400px;
+            background-color: #A0B7DC;
+            border-radius: 15px;
+            box-shadow: rgba(50, 50, 93, 0.25) 0px 13px 27px -5px, rgba(0, 0, 0, 0.3) 0px 8px 16px -8px;
+            overflow: hidden;
+        }
+
+        .box .upper {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 45%;
+            font-size: 50px;
+            z-index: 9;
+        }
+
+        .box .upper .wave {
+            bottom: -60%;
+            position: absolute;
+            width: 400px;
+            height: 400px;
+            background-color: rgba(245, 245, 245, 0.673);
+            animation: rotate 6s infinite linear;
+            border-radius: 35%;
+        }
+
+        .box .upper .wave.-one {
+            animation-duration: 4.5s;
+        }
+
+        .box .upper .wave.-two {
+            animation-duration: 6.6s;
+        }
+
+        .box .weathericon {
+            animation: pop 2.5s infinite linear;
+        }
+
+        .box .info {
+            position: relative;
+            height: 55%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 9;
+        }
+
+        .box .info h2 i {
+            color: rgb(124, 124, 124);
+            font-size: 30px;
+            margin: 0 20px 0 0;
+        }
+
+        .box .info p span {
+            padding: 0 5px 0 0;
+        }
+
+        .box .info p span#hoursHTML,
+        .box .info p span#minutesHTML {
+            padding: 0;
+        }
+
+        .name-min_max {
+            position: absolute;
+            bottom: 30px;
+        }
+
+        @keyframes pop {
+            0% {
+                transform: scale(1);
+            }
+
+            50% {
+                transform: scale(1.2);
+
+            }
+
+            100% {
+                transform: scale(1);
+
+            }
+        }
+
+
+        @keyframes rotate {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+
+            }
+
+        }
+    </style>
+</head>
+
+<body>
+    <div class="box" id="box">
+        <div class="upper">
+            <div class="wave -one"></div>
+            <div class="wave -two"></div>
+            <div class="wave -three"></div>
+
+            <div class="weathericon" id="weathericon">
+                <i class="fa-solid fa-sun" style="color: #EBC969;"></i>
+
+            </div>
+        </div>
+
+        <div class="info">
+            <h2 class="location"><i class="fa-solid fa-street-view"></i><span>{%city%}, {%country%}</span></h2>
+            <p class="date" id="date">
+                <span id="dayHTML">dd</span>|
+                <span id="monthHTML">month</span>
+                <span id="yearHTML">year</span>|
+                <span id="hoursHTML">hours</span>:<span id="minutesHTML">minutes</span>
+            </p>
+            <h1 class="temp">{%tempval%}&deg;C</h1>
+            <h3 class="temp-min_max">{%tempmin%}&deg;C | {%tempmax%}&deg;C</h3>
+            <p class="name-min_max">maximum | minimum</p>
+
+        </div>
+
+    </div>
+
+    <script>
+        const datedata = document.getElementById('date')
+        const weathericon = document.getElementById('weathericon')
+        const box = document.getElementById('box')
+
+        // html date part 
+        const dayHTML = document.getElementById('dayHTML');
+        const monthHTML = document.getElementById('monthHTML');
+        const yearHTML = document.getElementById('yearHTML');
+        const hoursHTML = document.getElementById('hoursHTML');
+        const minutesHTML = document.getElementById('minutesHTML');
+
+
+        const tempicon = "{%tempicon%}"
+        const iconMappings = {
+            "01n": { icon: "fa-moon", background: "#041A40" },
+            "01d": { icon: "fa-sun", background: "" },
+            "02n": { icon: "fa-cloud-moon", background: "#041A40" },
+            "02d": { icon: "fa-cloud-sun", background: "" },
+            "03n": { icon: "fa-cloud", background: "#041A40" },
+            "03d": { icon: "fa-cloud", background: "" },
+            "04n": { icon: "fa-cloud", background: "#041A40" },
+            "04d": { icon: "fa-cloud", background: "" },
+            "09n": { icon: "fa-cloud-showers-water", background: "#041A40" },
+            "09d": { icon: "fa-cloud-showers-water", background: "" },
+            "10n": { icon: "fa-cloud-rain", background: "#041A40" },
+            "10d": { icon: "fa-cloud-rain", background: "" },
+            "11n": { icon: "fa-cloud-bolt", background: "#041A40" },
+            "11d": { icon: "fa-cloud-bolt", background: "" },
+            "13n": { icon: "fa-snowflake", background: "#041A40" },
+            "13d": { icon: "fa-snowflake", background: "" },
+            "50n": { icon: "fa-smog", background: "#041A40" },
+            "50d": { icon: "fa-smog", background: "" },
+            // Add more mappings as needed
+        };
+
+        const mapping = iconMappings[tempicon];
+
+        if (mapping) {
+            const { icon, background } = mapping;
+            weathericon.innerHTML = `<i class="fa-solid ${icon}" style="color: #EBC969;"></i>`;
+            box.style.background = background || "";
+        }
+
+        const getcurrentDate = () => {
+            var daysOfWeek = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+            let date = new Date();
+            // day part 
+            dayinnumber = date.getDay();
+            day = daysOfWeek[dayinnumber]
+            dayHTML.innerText = day
+            // month part 
+            let month = date.getMonth();
+            monthHTML.innerText = month + 1
+            // year part 
+            let year = date.getFullYear();
+            yearHTML.innerText = year
+            // hours part 
+            let hours = date.getHours();
+            if (hours > 12) {
+                hours = hours - 12;
+                var am_pm = "  pm"
+            }
+            else {
+                am_pm = '  am'
+            }
+            hoursHTML.innerText = hours
+            // minutes part 
+            let minutes = date.getMinutes();
+            minutesHTML.innerText = minutes + am_pm
+        }
+        getcurrentDate()
+    </script>
+</body>
+
+</html>
